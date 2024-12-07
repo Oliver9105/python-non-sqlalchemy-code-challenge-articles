@@ -77,18 +77,56 @@ class Author:
 
 
 class Magazine:
+    all = []
+
     def __init__(self, name, category):
-        self.name = name
-        self.category = category
+        if isinstance(name, str) and 2 <= len(name) <= 16:
+            self._name = name
+        else:
+            raise Exception("Name must be a string between 2 and 16 characters.")
+        if isinstance(category, str) and len(category) > 0:
+            self._category = category
+        else:
+            raise Exception("Category must be a non-empty string.")
+        Magazine.all.append(self)
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, name):
+        if isinstance(name, str) and 2 <= len(name) <= 16:
+            self._name = name
+        else:
+            print("Name must be a string between 2 and 16 characters.")  # Log instead of raising an exception
+
+    @property
+    def category(self):
+        return self._category
+
+    @category.setter
+    def category(self, category):
+        if isinstance(category, str) and len(category) > 0:
+            self._category = category
+        else:
+            print("Category must be a non-empty string.")  # Log instead of raising an exception
 
     def articles(self):
-        pass
+        return [article for article in Article.all if article.magazine == self]
 
     def contributors(self):
-        pass
+        return list(set(article.author for article in self.articles()))
 
     def article_titles(self):
-        pass
+        titles = [article.title for article in self.articles()]
+        return titles if titles else None
 
     def contributing_authors(self):
-        pass
+        from collections import Counter
+        authors = [article.author for article in self.articles()]
+        return [author for author, count in Counter(authors).items() if count > 2] or None
+
+    @classmethod
+    def top_publisher(cls):
+        return max(cls.all, key=lambda magazine: len(magazine.articles()), default=None)
